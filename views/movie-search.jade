@@ -1,0 +1,106 @@
+doctype html
+html
+	head
+		// Compiled and minified CSS
+		link(rel='stylesheet', href='https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-beta/css/materialize.min.css')
+		link(href='https://fonts.googleapis.com/icon?family=Material+Icons', rel='stylesheet')
+		script(src='https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js')
+		// Compiled and minified JavaScript
+		script(src='https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-beta/js/materialize.min.js')
+	body
+		nav
+			.nav-wrapper
+				a.brand-logo(href='/') CIS 450 Project
+				ul#nav-mobile.right.hide-on-med-and-down
+					li
+						a(href='/') home
+		.container(style='padding: 1em')
+			.row
+				.input-field.col.s12
+					select#querySelect
+						option(value='', disabled='') Choose your option
+						option(value='1', selected='') Which movies have this genre?
+						option(value='2') Second Test Query
+						option(value='3') Option 3
+					label Queries
+			.row
+				.input-field.col.l10
+					input#query.validate(placeholder='Input your query', type='text')
+					label(for='query') Search
+				.input-field.col.l2
+					a.waves-effect.waves-light.btn(onclick='submitQuery()')
+						i.material-icons.right send
+						| Search
+			#output.row
+	script.
+		// select
+		var elem = document.querySelector('select');
+		$(document).ready(function(){
+		$('select').formSelect();
+		});
+		function submitQuery() {
+		//  Query Type
+		var selectElem = document.getElementById("querySelect");
+		var queryType = selectElem.options[selectElem.selectedIndex].value;
+		//  Query String
+		var queryString = document.getElementById('query').value
+		if (queryString.length == 0) {
+		M.toast({html: 'Query cannot be empty!'})
+		} else {
+		if (queryType == 1) {
+		$.ajax({
+		type: 'POST',
+		url: "http://localhost:3000/query",
+		data: {
+		queryType,
+		queryString,
+		},
+		dataType: "json",
+		success: function(res) {
+		var head = '<ul class="collection with-header"> <li class="collection-header"><h4>' + res.title +'</h4></li>'
+		var body = ''
+		var end = '</ul>'
+		if (res.results.length > 0){
+		for (var i = 0; i < res.results.length; i++) {
+		if (res.results[i] !== undefined) {
+		body += '<li class="collection-item"><div>' + res.results[i]['title'] + '</div></li>'
+		}
+		}
+		} else {
+		body = '<li class="collection-item"><div>' + 'No Matching Record' + '</div></li>'
+		}
+		document.getElementById('output').innerHTML = head + body + end;
+		console.log(res)
+		}
+		});
+		} else if (queryType == 2) {
+		$.ajax({
+		type: 'POST',
+		url: "http://localhost:3000/query",
+		data: {
+		queryType,
+		queryString,
+		},
+		dataType: "json",
+		success: function(res) {
+		var head = '<ul class="collection with-header"> <li class="collection-header"><h4>' + res.title +'</h4></li>'
+		var body = ''
+		var end = '</ul>'
+		if (res.results.length > 0){
+		for (var i = 0; i < res.results.length; i++) {
+		if (res.results[i] !== undefined) {
+		body += '<li class="collection-item"><div>' + res.results[i]['title'] + '</div></li>'
+		}
+		}
+		} else {
+		body = '<li class="collection-item"><div>' + 'No Matching Records' + '</div></li>'
+		}
+		document.getElementById('output').innerHTML = head + body + end;
+		},
+		error: function(e) {
+		console.log(e)
+		}
+		});
+		}
+		}
+		}
